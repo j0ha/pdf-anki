@@ -103,6 +103,7 @@ You are receiving the text from one slide of a lecture. Use the following princi
                 try:
                     response = completion.choices[0].message.function_call.arguments
                     if response:
+                        print(completion)
                         return response
                 except AttributeError:
                     print("Error: No function_call in the response. Retrying...")
