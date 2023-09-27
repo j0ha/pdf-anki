@@ -5,6 +5,8 @@ import openai
 import re
 import streamlit as st
 import streamlit.components.v1 as components
+import csv
+import os
 
 openai.api_key == st.secrets["OPENAI_API_KEY"]
 
@@ -115,19 +117,28 @@ You are receiving the text from one slide of a lecture. Use the following princi
                 print(f"Error: {e}. Retrying...")
                 retries += 1
 
-    def add_to_anki(self, cards, page):
-        try:
-            # TODO: implement new API check
-            
-            for card in cards:
-                front = card['front']
-                back = card['back']
-                tags = st.session_state["flashcards_" + str(page) + "_tags"]
-                API("MyDeck", front, back, tags)
-            return True
-
-        except Exception as e:
-            raise ValueError(e)
+    def add_to_anki(self, cards, page, subject):
+        output_file = 'output.csv'
+    
+        # Check if output.csv exists, if not, create it with headers
+        if not os.path.isfile(output_file):
+            with open(output_file, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['front', 'back', 'tags', 'subject'])
+    
+        # Open output.csv in append mode and add cards
+        with open(output_file, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            try:
+                for card in cards:
+                    front = card['front']
+                    back = card['back']
+                    tags = 'flashcards_' + str(page) + '_tags'  # Updated tags assignment
+                    # API("MyDeck", front, back, tags)  # Call to your API function
+                    writer.writerow([front, back, tags, subject])  # Write card data to output.csv
+                return True
+            except Exception as e:
+                raise ValueError(e)
 
     def cleanup_response(self, text):
         try:

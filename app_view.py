@@ -4,6 +4,8 @@ import json
 import streamlit as st
 import fitz
 from PIL import Image
+import pandas as pd
+import numpy as np
 
 class AppView:
     def __init__(self, actions):
@@ -13,6 +15,7 @@ class AppView:
         range_good = False
         with st.sidebar:
             st.session_state["lang"] = st.selectbox("Returned language", ('English', 'German'), on_change=self.clear_data)
+            st.session_state["subject"] = st.text_input("Subject", on_change=self.clear_data)
             col1, col2 = st.columns(2)
             with col1:            
                 start = st.number_input('Starting page', value=1, min_value=1, format='%i')
@@ -31,9 +34,9 @@ class AppView:
                     range_good = False
                 else:
                     range_good = True
-            st.info("To add flashcards to Anki:\n- Anki needs to be running with AnkiConnect installed (Addon #: 2055492159)\n- In Anki: Tools -> Addons -> Config add 'https://pdf-anki.streamlit.app' to 'webCorsOriginList' and then restart Anki")
-            st.divider()
-            st.write("[Feedback](mailto:pdf.to.anki@gmail.com)")
+            #st.info("To add flashcards to Anki:\n- Anki needs to be running with AnkiConnect installed (Addon #: 2055492159)\n- In Anki: Tools -> Addons -> Config add 'https://pdf-anki.streamlit.app' to 'webCorsOriginList' and then restart Anki")
+            #st.divider()
+            #st.write("[Feedback](mailto:pdf.to.anki@gmail.com)")
 
         # TODO: Cache all created flashcards
     
@@ -178,7 +181,7 @@ class AppView:
         try:
             # Total cards to add for current page
             st.session_state["flashcards_to_add"] = st.session_state["flashcards_" + str(page) + "_to_add"]
-            success = self.actions.add_to_anki(prepared_flashcards, page)
+            success = self.actions.add_to_anki(prepared_flashcards, page, st.session_state["subject"])
             if success:
                 # Add state for flashcards added
                 st.session_state["flashcards_" + str(page) + "_added"] = True
